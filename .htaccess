@@ -1,0 +1,20 @@
+# Généré par site-src/construire.py — ne pas modifier à la main.
+Options -Indexes
+ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.augrilldelagrange\.fr$ [NC]
+RewriteRule ^(.*)$ https://augrilldelagrange.fr/$1 [R=301,L]
+</IfModule>
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/html "access plus 0 seconds"
+ExpiresByType text/css "access plus 1 year"
+ExpiresByType application/javascript "access plus 1 year"
+ExpiresByType text/javascript "access plus 1 year"
+ExpiresByType image/webp "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType video/mp4 "access plus 1 month"
+ExpiresByType video/webm "access plus 1 month"
+</IfModule>
