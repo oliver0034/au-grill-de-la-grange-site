@@ -238,10 +238,7 @@ address { font-style: normal; }
 .route__tete { display: none; fill: var(--or-clair); filter: drop-shadow(0 0 6px rgba(232, 100, 30, .9)); }
 .js-anim .route__tete { display: inline; }
 
-/* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits en GSAP et canvas).
-   Braises qui montent du feu : canvas posé par site.js entre le voile et le contenu. */
-.une { position: relative; }
-.braises { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+/* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits en GSAP et canvas) ; braises retirées le même jour. */
 /* Lettres remplies par la vidéo du feu : le texte reste dans la page, transparent ; le canvas le dessine. */
 .feu-texte { position: relative; }
 .feu-texte canvas { display: none; position: absolute; left: 0; top: 0; pointer-events: none; }

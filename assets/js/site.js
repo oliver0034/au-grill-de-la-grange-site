@@ -102,7 +102,6 @@
   if (lignes.length) tl.fromTo(lignes, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, '-=0.6');
 
   /* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits ici en GSAP et canvas) */
-  braises();
   if (!economie) lettresDeFeu();
   lueurs();
 
@@ -129,57 +128,6 @@
   apparitions();
   affichesCollees();
   compteur();
-
-  /* ---------- Braises qui montent du feu : canvas du premier écran, arrêté hors écran et onglet caché */
-  function braises() {
-    var une = document.querySelector('.une');
-    if (!une) return;
-    var cv = document.createElement('canvas');
-    cv.className = 'braises';
-    cv.setAttribute('aria-hidden', 'true');
-    var voile = une.querySelector('.feu__voile');
-    une.insertBefore(cv, voile ? voile.nextSibling : une.firstChild);
-    var ctx = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1);
-    var W = 0, H = 0, parts = [], enVue = true, boucle = false, dernier = 0;
-
-    var sprite = document.createElement('canvas'); sprite.width = sprite.height = 64;
-    var s = sprite.getContext('2d'), g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, 'rgba(255,246,205,1)'); g.addColorStop(0.16, 'rgba(248,214,117,.95)');
-    g.addColorStop(0.42, 'rgba(232,100,30,.42)'); g.addColorStop(1, 'rgba(232,100,30,0)');
-    s.fillStyle = g; s.fillRect(0, 0, 64, 64);
-
-    function taille() { var r = une.getBoundingClientRect(); W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-    function nouvelle(depart) {
-      return { x: Math.random() * W, y: depart ? H * (0.3 + Math.random() * 0.75) : H * (0.9 + Math.random() * 0.15),
-        vy: 20 + Math.random() * 50, amp: 6 + Math.random() * 26, f: 0.5 + Math.random() * 1.4, ph: Math.random() * 6.283,
-        t: depart ? Math.random() * 4 : 0, vie: 3.5 + Math.random() * 4.5, r: 1.3 + Math.random() * 2.8 };
-    }
-    taille();
-    for (var i = 0, n = W < 720 ? 30 : 60; i < n; i++) parts.push(nouvelle(true));
-
-    function image(ts) {
-      if (!enVue || document.hidden) { boucle = false; dernier = 0; return; }
-      var dt = dernier ? Math.min(0.05, (ts - dernier) / 1000) : 0.016; dernier = ts;
-      ctx.clearRect(0, 0, W, H);
-      ctx.globalCompositeOperation = 'lighter';
-      for (var i = 0; i < parts.length; i++) {
-        var p = parts[i];
-        p.t += dt;
-        if (p.t > p.vie || p.y < -20) p = parts[i] = nouvelle(false);
-        p.y -= p.vy * dt;
-        var k = p.t / p.vie, r = p.r * (1 - 0.45 * k) * 6;
-        ctx.globalAlpha = Math.max(0, (k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85) * (0.75 + 0.25 * Math.sin(p.t * 13 + p.ph)));
-        ctx.drawImage(sprite, p.x + Math.sin(p.t * p.f + p.ph) * p.amp - r, p.y - r, 2 * r, 2 * r);
-      }
-      ctx.globalAlpha = 1;
-      requestAnimationFrame(image);
-    }
-    function relancer() { if (enVue && !document.hidden && !boucle) { boucle = true; requestAnimationFrame(image); } }
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { enVue = es[0].isIntersecting; relancer(); }).observe(une);
-    document.addEventListener('visibilitychange', relancer);
-    window.addEventListener('resize', aplati(taille));
-    relancer();
-  }
 
   /* ---------- Lettres remplies par la vidéo du feu : « Restaurant à la ferme » et les mots de section.
      Vidéo du premier écran pour le titre, une seconde copie pour les sections (chacune ne tourne qu'à l'écran). */
