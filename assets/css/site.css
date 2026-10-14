@@ -217,6 +217,8 @@ address { font-style: normal; }
 .pied__bloc a:hover { color: var(--or-clair); }
 .pied__bloc span { color: var(--texte); }
 .pied__mentions { max-width: var(--largeur-contenu); margin: var(--e-8) auto 0; padding-top: var(--e-5); border-top: 1px solid var(--cendre); font-size: var(--fs-mention); color: var(--fumee); text-align: center; }
+.pied__credit { margin: var(--e-3) 0 0; font-size: var(--fs-mention); color: var(--fumee); text-align: center; }
+.pied__credit a { color: var(--texte); }
 
 /* ---------- Barre d'appel mobile */
 .barre-appel { display: none; }

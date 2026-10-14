@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="/assets/img/logo-principal-700.webp" imagesrcset="/assets/img/logo-principal-700.webp 700w, /assets/img/logo-principal-1200.webp 1200w" imagesizes="(min-width: 900px) 620px, 84vw" fetchpriority="high">
-<link rel="stylesheet" href="/assets/css/tokens.css?v=ab895233">
-<link rel="stylesheet" href="/assets/css/site.css?v=ab895233">
+<link rel="stylesheet" href="/assets/css/tokens.css?v=c1a486a8">
+<link rel="stylesheet" href="/assets/css/site.css?v=c1a486a8">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Restaurant", "@id": "https://augrilldelagrange.fr/#restaurant", "name": "Au Grill de la Grange", "alternateName": "Ferme auberge Lafon de Lacan", "description": "Restaurant à la ferme à Saint-Pargoire : grillades au feu de bois, viandes de producteurs de l'Aubrac, fromage de chèvre de la ferme.", "url": "https://augrilldelagrange.fr/", "telephone": "+33748157160", "image": ["https://augrilldelagrange.fr/assets/img/og-au-grill-de-la-grange.jpg", "https://augrilldelagrange.fr/assets/img/agneau-braise.jpg"], "logo": "https://augrilldelagrange.fr/assets/img/tete-taureau-512.png", "address": {"@type": "PostalAddress", "streetAddress": "Lieu-dit Lafon de Lacan", "postalCode": "34230", "addressLocality": "Saint-Pargoire", "addressRegion": "Occitanie", "addressCountry": "FR"}, "geo": {"@type": "GeoCoordinates", "latitude": 43.538751, "longitude": 3.559023}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "19:00", "closes": "23:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "19:00", "closes": "23:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "12:00", "closes": "15:00"}], "servesCuisine": ["Grillades", "Viande", "Cuisine du terroir"], "priceRange": "€€", "acceptsReservations": true, "hasMenu": "https://augrilldelagrange.fr/carte-cote-de-boeuf-feu-de-bois/", "sameAs": ["https://www.facebook.com/p/Ferme-auberge-Lafon-de-Lacan-100057545285429/"]}</script>
 </head>
 <body class="page-accueil">
@@ -80,6 +80,41 @@
     </div>
     <p class="etat-feu" data-etat-feu data-une-ligne><span class="etat-feu__braise" aria-hidden="true"></span><span data-etat-texte>Vendredi et samedi soir, dimanche midi.</span></p>
   </div>
+</section>
+
+<section class="film" aria-label="Film de présentation du restaurant">
+  <figure class="film__cadre">
+    <video id="film-video" muted loop playsinline preload="none" width="1280" height="720" poster="/assets/video/film-affiche.jpg"
+           aria-label="Film de présentation : le feu, la vallée, la viande de l'Aubrac, les plats, l'apéro entre amis et la réservation">
+      <source src="/assets/video/film-au-grill-de-la-grange.mp4" type="video/mp4">
+    </video>
+    <button type="button" id="film-son" class="film__son" aria-pressed="false">Activer le son</button>
+  </figure>
+  <style>
+    .film { padding: var(--e-8) var(--e-5) var(--e-9); }
+    .film__cadre { position: relative; max-width: 960px; margin: 0 auto; overflow: hidden; border: 1px solid rgba(191, 137, 38, .55); border-radius: var(--rayon-doux); background: var(--noir); box-shadow: 0 30px 80px rgba(0, 0, 0, .55); }
+    .film__cadre video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    .film__son { position: absolute; right: 14px; bottom: 14px; min-height: 2.75rem; padding: .5em 1.1em; border: 1px solid rgba(231, 181, 69, .6); border-radius: var(--rayon-doux); background: rgba(10, 8, 7, .78); color: var(--creme); font: 600 .95rem var(--police-texte); cursor: pointer; }
+    .film__son:hover { color: var(--or-clair); border-color: var(--or); }
+    @media (max-width: 600px) { .film { padding: var(--e-6) var(--e-4) var(--e-8); } .film__son { right: 8px; bottom: 8px; min-height: 2.5rem; padding: .35em .8em; font-size: .85rem; } }
+  </style>
+  <script>
+    (function () {
+      var v = document.getElementById('film-video'), b = document.getElementById('film-son');
+      if (!v || !b) return;
+      b.addEventListener('click', function () {
+        v.muted = !v.muted;
+        if (!v.muted) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        b.textContent = v.muted ? 'Activer le son' : 'Couper le son';
+        b.setAttribute('aria-pressed', String(!v.muted));
+      });
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; return; }
+      if (!('IntersectionObserver' in window)) { var p0 = v.play(); if (p0 && p0.catch) p0.catch(function () {}); return; }
+      new IntersectionObserver(function (e) {
+        if (e[0].isIntersecting) { var p1 = v.play(); if (p1 && p1.catch) p1.catch(function () {}); } else { v.pause(); }
+      }, { threshold: 0.3 }).observe(v);
+    })();
+  </script>
 </section>
 
 <section class="affiche affiche--aubrac" aria-labelledby="titre-aubrac">
@@ -217,6 +252,7 @@
     </nav>
   </div>
   <p class="pied__mentions">Anciennement la ferme-auberge Lafon de Lacan. <a href="/mentions-legales/">Mentions légales</a></p>
+  <p class="pied__credit">Site créé par <a href="https://fiducia-ia.com/" rel="noopener">Fiducia IA</a></p>
 </footer>
 
 <a class="barre-appel barre-appel--cachee" href="tel:+33748157160"><svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>Réserver au 07 48 15 71 60</span></a>
@@ -225,6 +261,6 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
-<script src="/assets/js/site.js?v=ab895233" defer></script>
+<script src="/assets/js/site.js?v=c1a486a8" defer></script>
 </body>
 </html>
