@@ -1,0 +1,113 @@
+/* GÉNÉRÉ par charte/outils/generer.py depuis charte/charte.json — ne pas modifier à la main. */
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Cinzel:wght@500;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --noir: #0A0807;
+  --charbon: #15100C;
+  --suie: #1F1813;
+  --cendre: #3B3027;
+  --fumee: #9A8C7D;
+  --texte: #D9CFC1;
+  --creme: #F3EBDD;
+  --or-sombre: #BF8926;
+  --or: #E7B545;
+  --or-clair: #F3D975;
+  --or-reflet: #F8EE95;
+  --braise: #E8641E;
+  --bleu-fr: #0055A4;
+  --rouge-fr: #EF4135;
+  --degrade-or: linear-gradient(100deg, var(--or-sombre) 0%, var(--or) 28.0%, var(--or-reflet) 50.0%, var(--or) 72.0%, var(--or-sombre) 100%);
+  --filet-or: linear-gradient(90deg, transparent, var(--or-sombre) 18%, var(--or) 50%, var(--or-sombre) 82%, transparent);
+  --police-titre: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif;
+  --police-texte: 'Alegreya Sans', 'Gill Sans', 'Trebuchet MS', sans-serif;
+  --fs-affiche: clamp(2.6rem, 1.4rem + 5.3333vw, 6.2rem);
+  --lh-affiche: 1.02;
+  --ls-affiche: 0.06em;
+  --fw-affiche: 600;
+  --ff-affiche: var(--police-titre);
+  --fs-titre: clamp(1.9rem, 1.4rem + 2.2222vw, 3.4rem);
+  --lh-titre: 1.1;
+  --ls-titre: 0.08em;
+  --fw-titre: 500;
+  --ff-titre: var(--police-titre);
+  --fs-sous-titre: clamp(1.25rem, 1.1333rem + 0.5185vw, 1.6rem);
+  --lh-sous-titre: 1.25;
+  --ls-sous-titre: 0.1em;
+  --fw-sous-titre: 500;
+  --ff-sous-titre: var(--police-titre);
+  --fs-signature: clamp(0.74rem, 0.7067rem + 0.1481vw, 0.84rem);
+  --lh-signature: 1.4;
+  --ls-signature: 0.34em;
+  --fw-signature: 600;
+  --ff-signature: var(--police-titre);
+  --fs-chapo: clamp(1.15rem, 1.0667rem + 0.3704vw, 1.4rem);
+  --lh-chapo: 1.5;
+  --ls-chapo: 0em;
+  --fw-chapo: 400;
+  --ff-chapo: var(--police-texte);
+  --fs-texte: clamp(1.03rem, 0.9967rem + 0.1481vw, 1.13rem);
+  --lh-texte: 1.62;
+  --ls-texte: 0em;
+  --fw-texte: 400;
+  --ff-texte: var(--police-texte);
+  --fs-mention: clamp(0.84rem, 0.82rem + 0.0889vw, 0.9rem);
+  --lh-mention: 1.5;
+  --ls-mention: 0.01em;
+  --fw-mention: 400;
+  --ff-mention: var(--police-texte);
+  --fs-prix: clamp(1.15rem, 1.0833rem + 0.2963vw, 1.35rem);
+  --lh-prix: 1.2;
+  --ls-prix: 0.02em;
+  --fw-prix: 500;
+  --ff-prix: var(--police-texte);
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1.0rem;
+  --e-5: 1.5rem;
+  --e-6: 2.0rem;
+  --e-7: 3.0rem;
+  --e-8: 4.0rem;
+  --e-9: 6.0rem;
+  --e-10: 8.0rem;
+  --e-11: 12.0rem;
+  --rayon-net: 0px;
+  --rayon-doux: 2px;
+  --rayon-pilule: 999px;
+  --filet-fin: 1px;
+  --filet-marque: 2px;
+  --largeur-lecture: 32em;
+  --largeur-contenu: 75.0rem;
+  --largeur-large: 90.0rem;
+  --duree-rapide: 220ms;
+  --duree-moyenne: 480ms;
+  --duree-lente: 900ms;
+  --courbe-braise: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --courbe-sortie: cubic-bezier(0.6, 0, 0.8, 0.3);
+  --zoom-de: 1.0;
+  --zoom-a: 1.08;
+  --zoom-duree: 9s;
+  --voile-saturation: 1.08;
+  --voile-assombrir: rgba(0, 0, 0, 0.14);
+  --voile-lueur: radial-gradient(ellipse 62.0% 48.0% at 50.0% 92.0%, rgba(232, 100, 30, 0.26) 0%, rgba(232, 100, 30, 0) 100%);
+  --voile-degrade: linear-gradient(to bottom, rgba(10, 8, 7, 0.64) 0%, rgba(10, 8, 7, 0.16) 24.0%, rgba(10, 8, 7, 0.3) 62.0%, rgba(10, 8, 7, 1.0) 100%);
+  --voile-vignette: radial-gradient(ellipse 64.0% 78.0% at 50.0% 56.0%, rgba(10, 8, 7, 0) 44.0%, rgba(10, 8, 7, 0.8) 100%);
+}
+
+/* Le feu sous voile — composant unique, repris tel quel par le site et le film.
+   <div class="feu"><video class="feu__video" …></video><div class="feu__voile" aria-hidden="true"></div></div> */
+.feu { position: relative; overflow: hidden; isolation: isolate; background: var(--noir); }
+.feu__video, .feu__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(var(--voile-saturation)); }
+.feu__voile, .feu__voile::before, .feu__voile::after { position: absolute; inset: 0; pointer-events: none; }
+.feu__voile { background: var(--voile-assombrir); }
+.feu__voile::before { content: ''; background: var(--voile-lueur); mix-blend-mode: screen; }
+.feu__voile::after { content: ''; background: var(--voile-vignette), var(--voile-degrade); }
+
+/* Surfaces du navigateur aux couleurs de la marque */
+::selection { background: var(--or); color: var(--noir); }
+:root { accent-color: var(--or); caret-color: var(--or); scrollbar-color: var(--cendre) var(--noir); }
+:focus-visible { outline: 2px solid var(--or-clair); outline-offset: 3px; border-radius: var(--rayon-doux); }
+
+@keyframes zoom-lent { from { transform: scale(var(--zoom-de)); } to { transform: scale(var(--zoom-a)); } }
+@media (prefers-reduced-motion: reduce) { .feu__video { display: none; } * { animation: none !important; transition: none !important; } }

@@ -1,0 +1,21 @@
+{
+ "name": "Au Grill de la Grange",
+ "short_name": "Grill de la Grange",
+ "lang": "fr",
+ "start_url": "/",
+ "display": "browser",
+ "background_color": "#0A0807",
+ "theme_color": "#0A0807",
+ "icons": [
+  {
+   "src": "/assets/img/tete-taureau-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/assets/img/tete-taureau-180.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  }
+ ]
+}
