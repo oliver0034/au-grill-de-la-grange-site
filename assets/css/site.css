@@ -64,15 +64,17 @@ address { font-style: normal; }
   .menu-ouvert { overflow: hidden; }
 }
 
-/* ---------- Le mot d'affiche : le titre de section, en grand, plein.
-   --w = largeur du mot en em (mesurée sur Cinzel 600) ; il occupe 90 % de la colonne, plafonné.
+/* ---------- Le mot d'affiche : le titre de section, plein.
+   Accueil (--section) : même taille que les autres H2, « Horaires et accès » (demande du 14/10/2026).
+   Pages (--page) : en grand. --w = largeur du mot en em (mesurée sur Cinzel 600) ; il occupe 90 % de la colonne, plafonné.
    --wm = largeur du mot le plus long, pour le mobile où le mot se plie sur deux lignes. */
 .titre-section { container-type: inline-size; display: grid; justify-items: center; text-align: center; gap: var(--e-5); margin: 0 0 var(--e-8); font-size: inherit; letter-spacing: 0; }
 .mot-affiche { display: block; font-family: var(--police-titre); font-weight: 600; text-transform: uppercase; color: var(--creme); line-height: .92; letter-spacing: .02em; text-align: center; }
-.mot-affiche--section, .mot-affiche--page { position: relative; padding-bottom: var(--e-6); font-size: min(11.5rem, calc(90cqi / var(--w, 6))); }
+.mot-affiche--section, .mot-affiche--page { position: relative; padding-bottom: var(--e-6); }
+.mot-affiche--section { font-size: var(--fs-titre); line-height: var(--lh-titre); }
 .mot-affiche--page { font-size: min(8.5rem, calc(90cqi / var(--w, 6))); }
 .mot-affiche--section::after, .mot-affiche--page::after { content: ''; position: absolute; left: 50%; bottom: 0; width: min(420px, 60%); height: 1px; transform: translateX(-50%); background: var(--filet-or); }
-@media (max-width: 720px) { .mot-affiche--section, .mot-affiche--page { font-size: calc(90cqi / var(--wm, var(--w, 6))); } }
+@media (max-width: 720px) { .mot-affiche--page { font-size: calc(90cqi / var(--wm, var(--w, 6))); } }
 .titre-section__ligne { display: block; max-width: 26ch; font-family: var(--police-titre); font-weight: 500; font-size: clamp(1.3rem, 1rem + 1.2vw, 2.1rem); line-height: 1.2; letter-spacing: .05em; color: var(--creme); text-wrap: balance; }
 .titre-affiche { text-align: center; margin-bottom: var(--e-8); }
 
