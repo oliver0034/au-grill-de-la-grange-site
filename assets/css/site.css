@@ -84,6 +84,7 @@ address { font-style: normal; }
 .une__contenu { position: relative; z-index: 1; width: 100%; max-width: 1100px; padding: var(--e-6) var(--e-5) var(--e-7); display: grid; justify-items: center; gap: clamp(var(--e-4), 2.6svh, var(--e-6)); }
 .une__logo img { width: min(680px, 86vw, 66svh); height: auto; filter: drop-shadow(0 18px 40px rgba(0, 0, 0, .65)); }
 .une__titre { max-width: 24em; font-size: clamp(1.4rem, 1rem + 1.35vw, 2.35rem); font-weight: 600; line-height: 1.22; letter-spacing: .045em; color: var(--creme); text-shadow: 0 2px 18px rgba(0, 0, 0, .7); }
+.une__titre-ligne { display: block; }
 .affiche-lignes { list-style: none; display: grid; gap: 0; font-family: var(--police-titre); font-weight: 500; font-size: clamp(1rem, .9rem + .5vw, 1.3rem); letter-spacing: .08em; color: var(--creme); }
 /* Dans le premier écran, les lignes d'horaires s'effacent derrière le H1 : plus petites, couleur texte. */
 .une .affiche-lignes { font-size: clamp(.92rem, .86rem + .3vw, 1.1rem); color: var(--texte); }
