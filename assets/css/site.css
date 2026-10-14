@@ -235,6 +235,32 @@ address { font-style: normal; }
 /* ---------- Animations (uniquement si GSAP est chargé : classe posée par site.js) */
 .js-anim [data-une-logo], .js-anim [data-une-ligne] { opacity: 0; }
 .js-anim .route__trace { stroke-dashoffset: 1; }
+.route__tete { display: none; fill: var(--or-clair); filter: drop-shadow(0 0 6px rgba(232, 100, 30, .9)); }
+.js-anim .route__tete { display: inline; }
+
+/* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits en GSAP et canvas).
+   Braises qui montent du feu : canvas posé par site.js entre le voile et le contenu. */
+.une { position: relative; }
+.braises { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+/* Lettres remplies par la vidéo du feu : le texte reste dans la page, transparent ; le canvas le dessine. */
+.feu-texte { position: relative; }
+.feu-texte canvas { display: none; position: absolute; left: 0; top: 0; pointer-events: none; }
+.feu-texte--actif .feu-texte__texte { color: transparent; }
+.feu-texte--actif canvas { display: block; }
+/* Lueur qui respire derrière la photo et le film : copie floutée de l'image. */
+.lueur-hote { position: relative; isolation: isolate; }
+.lueur-hote > picture, .lueur-hote > .film__cadre { position: relative; z-index: 1; }
+.lueur { position: absolute; z-index: 0; pointer-events: none; object-fit: cover; filter: blur(46px) saturate(1.9) brightness(1.3); transform: scale(1.1); opacity: .7; }
+/* Reflet sur les boutons d'appel, toutes les 6,5 s. */
+@media (prefers-reduced-motion: no-preference) {
+  .bouton:not(.bouton--trait), .barre-appel { overflow: hidden; isolation: isolate; }
+  .bouton:not(.bouton--trait) { position: relative; }
+  .bouton:not(.bouton--trait)::after, .barre-appel::after { content: ''; position: absolute; top: -10%; bottom: -10%; left: -60%; width: 45%; background: linear-gradient(100deg, rgba(255, 248, 220, 0) 0%, rgba(255, 248, 220, .65) 50%, rgba(255, 248, 220, 0) 100%); transform: skewX(-18deg); animation: reflet 6.5s cubic-bezier(.2, .7, .2, 1) infinite; pointer-events: none; }
+}
+@keyframes reflet { 0%, 72% { left: -60%; } 100% { left: 130%; } }
+/* Grain d'affiche sur le noir : texture fixe, sans mouvement. */
+body::after { content: ''; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .85 0 0 0 0 .7 0 0 0 1.4 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
 @media (prefers-reduced-motion: reduce) {
   .etat-feu--ouvert .etat-feu__braise, .route__halo { animation: none; }

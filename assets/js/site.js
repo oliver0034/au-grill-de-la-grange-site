@@ -101,16 +101,247 @@
   var lignes = document.querySelectorAll('[data-une-ligne]');
   if (lignes.length) tl.fromTo(lignes, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, '-=0.6');
 
+  /* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits ici en GSAP et canvas) */
+  braises();
+  if (!economie) lettresDeFeu();
+  lueurs();
+
   if (!window.ScrollTrigger) { gsap.set('.route__trace', { strokeDashoffset: 0 }); return; }
+  var ST = window.ScrollTrigger;
 
   /* Les mots d'affiche glissent légèrement au défilement, comme des affiches collées à la volée */
   document.querySelectorAll('[data-mot]').forEach(function (mot, i) {
     gsap.fromTo(mot, { xPercent: i % 2 ? 3 : -3 }, { xPercent: i % 2 ? -3 : 3, ease: 'none', scrollTrigger: { trigger: mot, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 
-  /* La route du vendredi se trace au défilement */
+  /* La route du vendredi se trace lentement au défilement, une braise en tête ; elle se défait en remontant */
   document.querySelectorAll('[data-route]').forEach(function (trace) {
-    var fig = trace.closest('.route');
-    gsap.fromTo(trace, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: fig, start: 'top 78%', end: 'bottom 55%', scrub: 0.6 } });
+    var fig = trace.closest('.route'), tete = fig.querySelector('[data-route-tete]'), long = trace.getTotalLength();
+    gsap.fromTo(trace, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none',
+      scrollTrigger: { trigger: fig, start: 'top 85%', end: 'bottom 30%', scrub: 1.6 },
+      onUpdate: function () {
+        if (!tete) return;
+        var p = trace.getPointAtLength(long * this.progress());
+        tete.setAttribute('cx', p.x.toFixed(1)); tete.setAttribute('cy', p.y.toFixed(1));
+      } });
   });
+
+  apparitions();
+  affichesCollees();
+  compteur();
+
+  /* ---------- Braises qui montent du feu : canvas du premier écran, arrêté hors écran et onglet caché */
+  function braises() {
+    var une = document.querySelector('.une');
+    if (!une) return;
+    var cv = document.createElement('canvas');
+    cv.className = 'braises';
+    cv.setAttribute('aria-hidden', 'true');
+    var voile = une.querySelector('.feu__voile');
+    une.insertBefore(cv, voile ? voile.nextSibling : une.firstChild);
+    var ctx = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1);
+    var W = 0, H = 0, parts = [], enVue = true, boucle = false, dernier = 0;
+
+    var sprite = document.createElement('canvas'); sprite.width = sprite.height = 64;
+    var s = sprite.getContext('2d'), g = s.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(255,246,205,1)'); g.addColorStop(0.16, 'rgba(248,214,117,.95)');
+    g.addColorStop(0.42, 'rgba(232,100,30,.42)'); g.addColorStop(1, 'rgba(232,100,30,0)');
+    s.fillStyle = g; s.fillRect(0, 0, 64, 64);
+
+    function taille() { var r = une.getBoundingClientRect(); W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    function nouvelle(depart) {
+      return { x: Math.random() * W, y: depart ? H * (0.3 + Math.random() * 0.75) : H * (0.9 + Math.random() * 0.15),
+        vy: 20 + Math.random() * 50, amp: 6 + Math.random() * 26, f: 0.5 + Math.random() * 1.4, ph: Math.random() * 6.283,
+        t: depart ? Math.random() * 4 : 0, vie: 3.5 + Math.random() * 4.5, r: 1.3 + Math.random() * 2.8 };
+    }
+    taille();
+    for (var i = 0, n = W < 720 ? 30 : 60; i < n; i++) parts.push(nouvelle(true));
+
+    function image(ts) {
+      if (!enVue || document.hidden) { boucle = false; dernier = 0; return; }
+      var dt = dernier ? Math.min(0.05, (ts - dernier) / 1000) : 0.016; dernier = ts;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        p.t += dt;
+        if (p.t > p.vie || p.y < -20) p = parts[i] = nouvelle(false);
+        p.y -= p.vy * dt;
+        var k = p.t / p.vie, r = p.r * (1 - 0.45 * k) * 6;
+        ctx.globalAlpha = Math.max(0, (k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85) * (0.75 + 0.25 * Math.sin(p.t * 13 + p.ph)));
+        ctx.drawImage(sprite, p.x + Math.sin(p.t * p.f + p.ph) * p.amp - r, p.y - r, 2 * r, 2 * r);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(image);
+    }
+    function relancer() { if (enVue && !document.hidden && !boucle) { boucle = true; requestAnimationFrame(image); } }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { enVue = es[0].isIntersecting; relancer(); }).observe(une);
+    document.addEventListener('visibilitychange', relancer);
+    window.addEventListener('resize', aplati(taille));
+    relancer();
+  }
+
+  /* ---------- Lettres remplies par la vidéo du feu : « Restaurant à la ferme » et les mots de section.
+     Vidéo du premier écran pour le titre, une seconde copie pour les sections (chacune ne tourne qu'à l'écran). */
+  function lettresDeFeu() {
+    var cibles = [].slice.call(document.querySelectorAll('.une__titre-ligne:first-child, .mot-affiche--section'));
+    if (!cibles.length || !('IntersectionObserver' in window)) return;
+    var videoUne = document.querySelector('[data-feu]'), videoSections = null;
+    function copieVideo() {
+      if (videoSections) return videoSections;
+      var v = document.createElement('video');
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      ['webm', 'mp4'].forEach(function (t) { var s = document.createElement('source'); s.src = '/assets/video/feu-boucle.' + t; s.type = 'video/' + t; v.appendChild(s); });
+      v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+      document.body.appendChild(v);
+      return (videoSections = v);
+    }
+    var dpr = Math.min(2, window.devicePixelRatio || 1), boucle = false;
+    var items = cibles.map(function (el) {
+      var texte = el.textContent.trim();
+      el.classList.add('feu-texte');
+      el.textContent = '';
+      var span = document.createElement('span'); span.className = 'feu-texte__texte'; span.textContent = texte;
+      var cv = document.createElement('canvas'); cv.setAttribute('aria-hidden', 'true');
+      el.appendChild(span); el.appendChild(cv);
+      var majuscules = getComputedStyle(el).textTransform === 'uppercase';
+      return { el: el, span: span, cv: cv, ctx: cv.getContext('2d'), texte: majuscules ? texte.toUpperCase() : texte,
+        video: el.closest('.une') && videoUne ? videoUne : copieVideo(), voile: el.closest('.une') ? 0.55 : 0.38, vu: false, actif: false };
+    });
+
+    function mesurer() {
+      items.forEach(function (it) {
+        it.actif = it.span.getClientRects().length === 1;      // un texte replié sur deux lignes garde sa couleur normale
+        it.el.classList.toggle('feu-texte--actif', it.actif);
+        if (!it.actif) return;
+        var cs = getComputedStyle(it.el), w = it.span.offsetWidth + 16, h = it.span.offsetHeight;
+        it.cv.style.left = (it.span.offsetLeft - 8) + 'px'; it.cv.style.top = it.span.offsetTop + 'px';
+        it.cv.style.width = w + 'px'; it.cv.style.height = h + 'px';
+        it.cv.width = Math.round(w * dpr); it.cv.height = Math.round(h * dpr);
+        it.w = w; it.h = h;
+        it.police = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+        it.espace = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+        dessiner(it);
+      });
+    }
+    function dessiner(it) {
+      var c = it.ctx, v = it.video;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.globalCompositeOperation = 'source-over';
+      c.clearRect(0, 0, it.w, it.h);
+      if (v.readyState >= 2) {
+        // bande de braises du bas de la vidéo, sous les barreaux de la grille ; même proportion que le texte
+        var vw = v.videoWidth, vh = v.videoHeight, sh = vh * 0.17, sw = sh * it.w / it.h;
+        if (sw > vw * 0.9) { sw = vw * 0.9; sh = sw * it.h / it.w; }
+        var sx = Math.max(0, Math.min(vw - sw, vw * 0.6 - sw / 2)), sy = Math.max(0, vh * 0.775 - sh / 2);
+        c.filter = 'brightness(1.35) saturate(1.25)';
+        c.drawImage(v, sx, sy, sw, sh, 0, 0, it.w, it.h);
+        c.filter = 'none';
+        c.globalCompositeOperation = 'screen';
+        c.fillStyle = 'rgba(231,181,69,' + it.voile + ')';  // relève les zones sombres vers l'or ; plus fort sur le titre, posé sur le feu
+        c.fillRect(0, 0, it.w, it.h);
+      } else {
+        c.fillStyle = '#E7B545'; c.fillRect(0, 0, it.w, it.h);
+      }
+      c.globalCompositeOperation = 'destination-in';
+      c.font = it.police;
+      if ('letterSpacing' in c) c.letterSpacing = it.espace;
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      var m = c.measureText(it.texte);
+      c.fillStyle = '#000';
+      c.fillText(it.texte, it.w / 2, (it.h + m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
+    }
+    function image() {
+      var vus = items.filter(function (it) { return it.vu && it.actif; });
+      if (!vus.length || document.hidden) { boucle = false; if (videoSections) videoSections.pause(); return; }
+      if (videoSections && videoSections.paused && vus.some(function (it) { return it.video === videoSections; })) { var p = videoSections.play(); if (p && p.catch) p.catch(function () {}); }
+      vus.forEach(dessiner);
+      requestAnimationFrame(image);
+    }
+    function relancer() { if (!boucle && !document.hidden && items.some(function (it) { return it.vu && it.actif; })) { boucle = true; requestAnimationFrame(image); } }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { items.forEach(function (it) { if (it.el === en.target) it.vu = en.isIntersecting; }); });
+      relancer();
+    });
+    items.forEach(function (it) { io.observe(it.el); });
+    document.addEventListener('visibilitychange', relancer);
+    window.addEventListener('resize', aplati(function () { mesurer(); relancer(); }));
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () { mesurer(); relancer(); });
+  }
+
+  /* ---------- Lueur qui respire derrière la photo et le film (copie floutée de l'image) */
+  function lueurs() {
+    var paires = [];
+    function ajouter(hote, cible, src) {
+      var l = document.createElement('img');
+      l.className = 'lueur'; l.alt = ''; l.setAttribute('aria-hidden', 'true'); l.decoding = 'async'; l.src = src;
+      hote.classList.add('lueur-hote');
+      hote.insertBefore(l, cible);
+      paires.push([l, cible]);
+      return l;
+    }
+    document.querySelectorAll('.cadre-photo').forEach(function (fig) {
+      var pic = fig.querySelector('picture'), img = fig.querySelector('img');
+      if (!pic || !img) return;
+      var l = ajouter(fig, pic, img.currentSrc || img.src);
+      img.addEventListener('load', function () { l.src = img.currentSrc || img.src; placer(); });
+    });
+    var cadre = document.querySelector('.film__cadre');
+    if (cadre) ajouter(cadre.parentNode, cadre, '/assets/video/film-affiche.webp');
+    if (!paires.length) return;
+    function placer() {
+      paires.forEach(function (p) {
+        var l = p[0], c = p[1];
+        l.style.left = c.offsetLeft + 'px'; l.style.top = c.offsetTop + 'px';
+        l.style.width = c.offsetWidth + 'px'; l.style.height = c.offsetHeight + 'px';
+      });
+    }
+    placer();
+    window.addEventListener('resize', aplati(placer));
+    if (window.ScrollTrigger) window.ScrollTrigger.addEventListener('refresh', placer);
+    gsap.to(paires.map(function (p) { return p[0]; }), { opacity: 1, scale: 1.17, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 1.1 });
+  }
+
+  /* ---------- Les blocs sous les titres entrent en fondu, du flou au net */
+  function apparitions() {
+    var cibles = gsap.utils.toArray(['.film__cadre', '.affiche .chapo', '.faits > div', '.aubrac__texte > p:not(.chapo)', '.route',
+      '.plats--extrait > li', '.carte-extrait__suite', '.carte-extrait__photo', '.ferme > p:not(.chapo)',
+      '.groupes-encart > .une__actions', '.infos-grille__bloc', '.faq'].join(','));
+    if (!cibles.length) return;
+    gsap.set(cibles, { autoAlpha: 0, y: 26, filter: 'blur(10px)' });
+    ST.batch(cibles, { start: 'top 88%', once: true, onEnter: function (lot) {
+      gsap.to(lot, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'expo.out', stagger: 0.09, overwrite: true, clearProps: 'filter,transform' });
+    } });
+    cibles.forEach(function (el) { if (el.getBoundingClientRect().bottom < 0) gsap.set(el, { autoAlpha: 1, y: 0, filter: 'none' }); });
+  }
+
+  /* ---------- Titres qui s'ouvrent depuis le centre, lignes d'affiche posées une à une comme des bandes collées */
+  function affichesCollees() {
+    document.querySelectorAll('.affiche .titre-section, .affiche .titre-affiche').forEach(function (t) {
+      var mot = t.querySelector('.mot-affiche') || t, ligne = t.querySelector('.titre-section__ligne');
+      var tl = gsap.timeline({ scrollTrigger: { trigger: t, start: 'top 84%', once: true } });
+      tl.fromTo(mot, { clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)', duration: 1.15, ease: 'expo.out', clearProps: 'clipPath' });
+      if (ligne) tl.fromTo(ligne, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.65');
+    });
+    document.querySelectorAll('.affiche-lignes--section').forEach(function (ul) {
+      gsap.fromTo(ul.children, { clipPath: 'inset(0 100% 0 0)', x: -16, rotation: -1.4 },
+        { clipPath: 'inset(0 0% 0 0)', x: 0, rotation: 0, duration: 0.85, ease: 'power3.out', stagger: 0.16, clearProps: 'clipPath,transform',
+          scrollTrigger: { trigger: ul, start: 'top 86%', once: true } });
+    });
+  }
+
+  /* ---------- « Environ 130 km » compte de 0 à 130 quand il arrive à l'écran */
+  function compteur() {
+    var dt = [].slice.call(document.querySelectorAll('.faits dt')).filter(function (d) { return /130\s*km/.test(d.textContent); })[0];
+    if (!dt) return;
+    dt.innerHTML = dt.innerHTML.replace('130', '<span class="faits__compteur">0</span>');
+    var n = dt.querySelector('.faits__compteur'), o = { v: 0 };
+    n.style.cssText = 'display:inline-block;min-width:3ch;text-align:right;font-variant-numeric:tabular-nums';
+    gsap.to(o, { v: 130, duration: 2.2, ease: 'power2.out', onUpdate: function () { n.textContent = Math.round(o.v); },
+      onComplete: function () { n.style.minWidth = ''; },          // la réserve de largeur ne sert que pendant le comptage
+      scrollTrigger: { trigger: dt, start: 'top 86%', once: true } });
+  }
+
+  function aplati(fn) { var t; return function () { clearTimeout(t); t = setTimeout(fn, 150); }; }
 })();
