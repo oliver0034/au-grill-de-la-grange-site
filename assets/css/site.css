@@ -239,11 +239,10 @@ address { font-style: normal; }
 .js-anim .route__tete { display: inline; }
 
 /* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits en GSAP et canvas) ; braises retirées le même jour. */
-/* Lettres remplies par la vidéo du feu : le texte reste dans la page, transparent ; le canvas le dessine. */
+/* Lettres remplies par la vidéo du feu : chaque mot reste dans la page, transparent ; un canvas par mot le dessine. */
 .feu-texte { position: relative; }
 .feu-texte canvas { display: none; position: absolute; left: 0; top: 0; pointer-events: none; }
-.feu-texte--actif .feu-texte__texte { color: transparent; }
-.feu-texte--actif canvas { display: block; }
+.feu-texte__mot--actif { color: transparent; }
 /* Lueur qui respire derrière la photo et le film : copie floutée de l'image. */
 .lueur-hote { position: relative; isolation: isolate; }
 .lueur-hote > picture, .lueur-hote > .film__cadre { position: relative; z-index: 1; }
