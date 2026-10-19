@@ -402,7 +402,7 @@
     }, { rootMargin: '600px 0px' }).observe(fig);
     window.addEventListener('resize', aplati(function () { pret = false; construire(); }));
     gsap.to(etat, { p: 1, ease: 'none', onUpdate: dessiner,
-      scrollTrigger: { trigger: fig, start: 'top 20%', end: 'bottom 20%', scrub: 0.8 } });
+      scrollTrigger: { trigger: fig, start: 'center 70%', end: 'center 20%', scrub: 0.3 } });   // tôt et réactif, à l'aller comme au retour
   }
 
   function aplati(fn) { var t; return function () { clearTimeout(t); t = setTimeout(fn, 150); }; }
