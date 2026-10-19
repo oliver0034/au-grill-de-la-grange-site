@@ -175,10 +175,28 @@ address { font-style: normal; }
 .tete-page .une__actions { justify-content: center; margin-top: var(--e-3); }
 .tete-page--sobre { padding-bottom: var(--e-5); }
 
-.menu-grille { display: grid; gap: var(--e-9); }
-@media (min-width: 960px) { .menu-grille { grid-template-columns: 1.3fr .7fr; } .menu-grille__photos { position: sticky; top: 7rem; align-self: start; } }
-.menu-grille__colonne { display: grid; gap: var(--e-9); }
-.menu-grille__photos { display: grid; gap: var(--e-7); }
+/* La carte : une rangée par rubrique illustrée, la photo d'un côté puis de l'autre ; les rubriques sans photo vont par deux. */
+.menu-rubriques { display: grid; gap: clamp(4.5rem, 9vw, 8rem); }
+.menu-rubrique { display: grid; gap: var(--e-7); align-items: center; }
+.menu-rubrique__photos { display: grid; gap: var(--e-7); }
+.menu-rubrique--simple { align-items: start; gap: var(--e-9); }
+.cadre-photo--portrait { width: 100%; max-width: 440px; justify-self: center; }
+.cadre-photo--rubrique figcaption { display: flex; align-items: center; gap: .7em; font-family: var(--police-titre); font-size: .92rem; letter-spacing: .05em; color: var(--fumee); }
+.cadre-photo--rubrique figcaption::before { content: ''; flex: none; width: 1.6rem; height: 1px; background: var(--or); }
+@media (max-width: 959px) {   /* mobile : titre de la rubrique, puis photos, puis plats */
+  .menu-rubrique { gap: var(--e-6); }
+  .menu-rubrique:not(.menu-rubrique--simple) .menu-rubrique__texte, .menu-rubrique:not(.menu-rubrique--simple) .menu-section { display: contents; }
+  .menu-rubrique .menu-section > h2 { order: -2; }
+  .menu-rubrique__photos { order: -1; margin-bottom: var(--e-3); }
+}
+@media (min-width: 960px) {
+  .menu-rubrique { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(3rem, 6vw, 6rem); }
+  .menu-rubrique--inverse { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .menu-rubrique--inverse .menu-rubrique__photos { order: -1; }
+  .menu-rubrique--simple { grid-template-columns: 1fr 1fr; }
+  .menu-rubrique--duo .cadre-photo:first-child { margin-right: 9%; }     /* les deux planches en décalé, comme deux affiches */
+  .menu-rubrique--duo .cadre-photo:last-child { margin-left: 9%; }
+}
 .menu-section { display: grid; gap: var(--e-5); }
 .menu-section h2 { font-size: var(--fs-sous-titre); letter-spacing: .1em; color: var(--or); padding-bottom: var(--e-3); background: var(--filet-or) no-repeat 0 100% / 100% 1px; }
 .menu-section__intro { color: var(--fumee); }
@@ -237,6 +255,9 @@ address { font-style: normal; }
 .js-anim .route__trace { stroke-dashoffset: 1; }
 .route__tete { display: none; fill: var(--or-clair); filter: drop-shadow(0 0 6px rgba(232, 100, 30, .9)); }
 .js-anim .route__tete { display: inline; }
+/* Photos de la carte : l'image se dévoile dans son cadre, se pose, dérive à peine au défilement (variables animées par site.js). */
+.js-anim .cadre-photo--rubrique img, .js-anim .cadre-photo--rubrique:hover img { transition: none; will-change: transform;
+  transform: translate3d(0, var(--parallaxe, 0px), 0) scale(calc(1.06 * var(--entree, 1) * var(--survol, 1))); }
 
 /* Effets choisis le 14/10/2026 sur démo (catalogue Magic UI, réécrits en GSAP et canvas) ; braises retirées le même jour. */
 /* Lettres remplies par la vidéo du feu : chaque mot reste dans la page, transparent ; un canvas par mot le dessine. */
@@ -247,6 +268,7 @@ address { font-style: normal; }
 .lueur-hote { position: relative; isolation: isolate; }
 .lueur-hote > picture, .lueur-hote > .film__cadre { position: relative; z-index: 1; }
 .lueur { position: absolute; z-index: 0; pointer-events: none; object-fit: cover; filter: blur(46px) saturate(1.9) brightness(1.3); transform: scale(1.1); opacity: .7; }
+.cadre-photo--rubrique > .lueur { opacity: .28; }
 /* Reflet sur les boutons d'appel, toutes les 6,5 s. */
 @media (prefers-reduced-motion: no-preference) {
   .bouton:not(.bouton--trait), .barre-appel { overflow: hidden; isolation: isolate; }

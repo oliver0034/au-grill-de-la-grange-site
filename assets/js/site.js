@@ -128,6 +128,7 @@
   apparitions();
   affichesCollees();
   compteur();
+  photosCarte();
 
   /* ---------- Lettres remplies par la vidéo du feu : « Restaurant à la ferme » et les mots d'affiche de toutes les pages.
      Un canvas par mot : un mot plié sur deux lignes (mobile) reste rempli, et chaque mot prend la portion de vidéo
@@ -268,7 +269,9 @@
     placer();
     window.addEventListener('resize', aplati(placer));
     if (window.ScrollTrigger) window.ScrollTrigger.addEventListener('refresh', placer);
-    gsap.to(paires.map(function (p) { return p[0]; }), { opacity: 1, scale: 1.17, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 1.1 });
+    // sur la carte, quatre grandes photos : halo plus discret pour ne pas alourdir la page
+    gsap.to(paires.map(function (p) { return p[0]; }), { opacity: function (i, l) { return l.parentNode.hasAttribute('data-photo-carte') ? 0.5 : 1; },
+      scale: 1.17, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 1.1 });
   }
 
   /* ---------- Les blocs entrent en fondu, du flou au net (toutes les pages) */
@@ -276,7 +279,7 @@
     var cibles = gsap.utils.toArray([
       '.tete-page .chapo', '.tete-page .une__actions', '.tete-page .etat-feu',                    // en-tête des pages intérieures
       '.film__cadre', '.affiche .chapo:not(.infos-page__bloc .chapo)', '.faits > div', '.aubrac__texte > p:not(.chapo)', '.route',
-      '.plats > li', '.menu-section > h2', '.menu-section__intro', '.carte-extrait__suite', '.cadre-photo',
+      '.plats > li', '.menu-section > h2', '.menu-section__intro', '.carte-extrait__suite', '.cadre-photo:not([data-photo-carte])',
       '.ferme > p:not(.chapo)', '.affiche .une__actions', '.colonne-texte > h2', '.colonne-texte > p:not(.chapo)',
       '.infos-grille__bloc', '.infos-page__bloc', '.faq'].join(','));
     if (!cibles.length) return;
@@ -312,6 +315,26 @@
     gsap.to(o, { v: 130, duration: 2.2, ease: 'power2.out', onUpdate: function () { n.textContent = Math.round(o.v); },
       onComplete: function () { n.style.minWidth = ''; },          // la réserve de largeur ne sert que pendant le comptage
       scrollTrigger: { trigger: dt, start: 'top 86%', once: true } });
+  }
+
+  /* ---------- Photos de la carte : l'image se dévoile de bas en haut dans son cadre, se pose depuis un léger zoom,
+     puis dérive de quelques pixels au défilement ; au survol, elle s'avance à peine */
+  function photosCarte() {
+    document.querySelectorAll('[data-photo-carte]').forEach(function (fig) {
+      var img = fig.querySelector('img'), legende = fig.querySelector('figcaption');
+      if (!img) return;
+      gsap.set(img, { '--entree': 1.14, clipPath: 'inset(100% 0% 0% 0%)' });
+      if (legende) gsap.set(legende, { autoAlpha: 0, x: -12 });
+      var tl = gsap.timeline({ scrollTrigger: { trigger: fig, start: 'top 84%', once: true } });
+      tl.to(img, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' })
+        .to(img, { '--entree': 1, duration: 2.4, ease: 'power3.out' }, 0.2);
+      if (legende) tl.to(legende, { autoAlpha: 1, x: 0, duration: 0.8, ease: 'power3.out' }, 0.95);
+      gsap.fromTo(img, { '--parallaxe': '-14px' }, { '--parallaxe': '14px', ease: 'none',
+        scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
+      fig.addEventListener('mouseenter', function () { gsap.to(img, { '--survol': 1.035, duration: 0.9, ease: 'power3.out' }); });
+      fig.addEventListener('mouseleave', function () { gsap.to(img, { '--survol': 1, duration: 0.9, ease: 'power3.out' }); });
+      if (fig.getBoundingClientRect().bottom < 0) { tl.progress(1); }
+    });
   }
 
   function aplati(fn) { var t; return function () { clearTimeout(t); t = setTimeout(fn, 150); }; }
