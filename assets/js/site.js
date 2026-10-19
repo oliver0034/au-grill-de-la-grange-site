@@ -129,6 +129,7 @@
   affichesCollees();
   compteur();
   photosCarte();
+  poussiere();
 
   /* ---------- Lettres remplies par la vidéo du feu : « Restaurant à la ferme » et les mots d'affiche de toutes les pages.
      Un canvas par mot : un mot plié sur deux lignes (mobile) reste rempli, et chaque mot prend la portion de vidéo
@@ -250,7 +251,7 @@
       paires.push([l, cible]);
       return l;
     }
-    document.querySelectorAll('.cadre-photo').forEach(function (fig) {
+    document.querySelectorAll('.cadre-photo:not([data-poussiere])').forEach(function (fig) {   // la photo en poussière n'a pas de halo
       var pic = fig.querySelector('picture'), img = fig.querySelector('img');
       if (!pic || !img) return;
       var l = ajouter(fig, pic, img.currentSrc || img.src);
@@ -335,6 +336,73 @@
       fig.addEventListener('mouseleave', function () { gsap.to(img, { '--survol': 1, duration: 0.9, ease: 'power3.out' }); });
       if (fig.getBoundingClientRect().bottom < 0) { tl.progress(1); }
     });
+  }
+
+  /* ---------- Photos de l'accueil qui partent en poussière quand on les dépasse, et se reforment en remontant.
+     Chaque photo est répartie pixel par pixel, au hasard (le haut d'abord), entre N calques ; au défilement, chaque calque
+     se détache à son tour vers le haut et vers l'espace libre (data-poussiere="gauche" ou "droite") en s'effaçant.
+     Calques construits une fois, à l'approche de la photo. */
+  function poussiere() {
+    if (!('IntersectionObserver' in window)) return;
+    document.querySelectorAll('[data-poussiere]').forEach(poussiereUne);
+  }
+  function poussiereUne(fig) {
+    var pic = fig.querySelector('picture'), img = fig.querySelector('img'), legende = fig.querySelector('figcaption');
+    if (!pic || !img) return;
+    var N = window.innerWidth < 720 ? 16 : 24, MARGE = 240, sens = fig.getAttribute('data-poussiere') === 'droite' ? 1 : -1;
+    var cv = document.createElement('canvas'), ctx = cv.getContext('2d');
+    cv.className = 'poussiere'; cv.setAttribute('aria-hidden', 'true');
+    fig.appendChild(cv);
+    var couches = [], vols = [], W = 0, H = 0, pret = false, etat = { p: 0 };
+
+    function construire() {
+      W = Math.round(pic.clientWidth); H = Math.round(pic.clientHeight);
+      if (!W || !H || !img.naturalWidth) return;
+      var src = document.createElement('canvas'); src.width = W; src.height = H;
+      var s = src.getContext('2d'); s.drawImage(img, 0, 0, W, H);
+      var pixels = s.getImageData(0, 0, W, H).data, lots = [];
+      for (var i = 0; i < N; i++) lots.push(s.createImageData(W, H));
+      for (var y = 0; y < H; y++) {
+        for (var x = 0; x < W; x++) {
+          var k = (y * W + x) * 4, c = Math.min(N - 1, Math.floor((0.5 * Math.random() + 0.5 * y / H) * N)), d = lots[c].data;
+          d[k] = pixels[k]; d[k + 1] = pixels[k + 1]; d[k + 2] = pixels[k + 2]; d[k + 3] = pixels[k + 3];
+        }
+      }
+      couches = lots.map(function (lot) { var c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').putImageData(lot, 0, 0); return c; });
+      vols = couches.map(function (_, i) { return { dx: sens * (80 + Math.random() * 230), dy: -(40 + Math.random() * 150), rot: (Math.random() - 0.5) * 0.35, depart: i / N * 0.55 }; });
+      cv.width = W + 2 * MARGE; cv.height = H + 2 * MARGE;
+      cv.style.left = (pic.offsetLeft - MARGE) + 'px'; cv.style.top = (pic.offsetTop - MARGE) + 'px';
+      cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
+      pret = true;
+      dessiner();
+    }
+    function dessiner() {
+      if (!pret) return;
+      var p = etat.p, actif = p > 0.002;
+      img.style.visibility = actif ? 'hidden' : '';
+      cv.style.display = actif ? 'block' : 'none';
+      pic.style.opacity = actif ? String(1 - p) : '';
+      if (legende) legende.style.opacity = actif ? String(Math.max(0, 1 - p * 2.5)) : '';
+      if (!actif) return;
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (var i = 0; i < N; i++) {
+        var q = Math.max(0, Math.min(1, (p - vols[i].depart) / 0.45)), e = q * q;
+        if (e >= 1) continue;
+        ctx.globalAlpha = 1 - e;
+        ctx.setTransform(1, 0, 0, 1, MARGE + W / 2 + vols[i].dx * e, MARGE + H / 2 + vols[i].dy * e);
+        ctx.rotate(vols[i].rot * e);
+        ctx.drawImage(couches[i], -W / 2, -H / 2);
+      }
+    }
+    new IntersectionObserver(function (es, io) {
+      if (!es[0].isIntersecting) return;
+      io.disconnect();
+      (img.decode ? img.decode() : Promise.resolve()).then(construire, construire);
+    }, { rootMargin: '600px 0px' }).observe(fig);
+    window.addEventListener('resize', aplati(function () { pret = false; construire(); }));
+    gsap.to(etat, { p: 1, ease: 'none', onUpdate: dessiner,
+      scrollTrigger: { trigger: fig, start: 'top 20%', end: 'bottom 20%', scrub: 0.8 } });
   }
 
   function aplati(fn) { var t; return function () { clearTimeout(t); t = setTimeout(fn, 150); }; }
