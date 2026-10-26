@@ -48,7 +48,8 @@ address { font-style: normal; }
 .entete__nav ul { list-style: none; display: flex; gap: var(--e-5); }
 .entete__nav ul a { color: var(--texte); text-decoration: none; font-weight: 500; padding-block: .35em; background: var(--filet-or) no-repeat 50% 100% / 0 1px; transition: color var(--duree-rapide) var(--courbe-braise), background-size var(--duree-moyenne) var(--courbe-braise); }
 .entete__nav ul a:hover, .entete__nav ul a[aria-current] { color: var(--creme); background-size: 100% 1px; }
-.entete__appel { min-height: 2.6rem; padding: .55em 1em; font-size: .98rem; }
+.entete__appel, .entete__reserver { min-height: 2.6rem; padding: .55em 1em; font-size: .98rem; white-space: nowrap; }
+.entete__reserver { box-shadow: none; }
 .entete__menu { display: none; margin-left: auto; width: 3rem; height: 3rem; align-items: center; justify-content: center; background: none; border: 0; color: var(--creme); cursor: pointer; border-radius: var(--rayon-doux); }
 .entete__menu .icone { width: 1.6rem; height: 1.6rem; }
 .icone--fermer { display: none; }
